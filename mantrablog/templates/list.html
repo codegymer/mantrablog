@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block tittle %}
+          list 
+{% endblock tittle %}
+{% block boddy %}
+{% include "nav.html" %}
+<div class="container mt-5">
+    <h1 class="bg-light p-4">List of Blog Posts</h1>
+    <ul class="list-group">
+        {% for post in items %}
+            <li class="list-group-item">
+                <h3 class="bg-light p-3">{{ post.title |capfirst }}</h3>
+                <p class="bg-light p-3">{{ post.content |capfirst |truncatechars:100}}</p>
+                <a class="btn btn-primary" href="/viewbyid/{{ post.id }}" role="button">View</a>
+            </li>
+            <br>
+        {% empty %}
+            <li class="list-group-item">No blog posts available.</li>
+        {% endfor %}
+    </ul>
+    
+    <!-- Add Bootstrap 5 Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if items.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" aria-label="First">
+                        <span aria-hidden="true">&laquo;&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% for i in items.paginator.page_range %}
+                <li class="page-item{% if i == items.number %} active{% endif %}">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+            {% endfor %}
+            
+            {% if items.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ items.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;&raquo;</span>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+
+  
+{% endblock boddy %}

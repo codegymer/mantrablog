@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block tittle %}
+          create blog
+{% endblock tittle %}
+
+{% block boddy %}
+{% include "nav.html" %}
+<div class="container mt-5">
+    <h1>Create a Blog Post</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="mb-3">
+            <label for="content" class="form-label">Content</label>
+            <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
+  
+{% endblock boddy %}

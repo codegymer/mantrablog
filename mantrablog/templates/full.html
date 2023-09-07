@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block tittle %}
+          full view
+{% endblock tittle %}
+
+{% block boddy %}
+{% include "nav.html" %}
+<div class="container mt-5">
+    <div class="bg-info p-4 ">
+        <span> Time: {{ post.date}}</span>  
+        <span>Author: {{post.user}}</span>
+
+        <h1 class="bg-info p-4 ">Title: {{ post.title|capfirst }}</h1>
+    </div>
+    <p class="bg-light p-4" style=" min-height: 50vh;" >{{ post.content |capfirst}}</p>
+    <!-- send -->
+    <br>
+    <br>
+    <br>
+         <p>Enter Recipient's Email Address</p>
+        <input type="email" class="form-control" id="recipient_email" placeholder="Enter recipient's email" required>
+        <br>
+        <button type="submit" class=" btn btn-success" name='emails' onclick="sendmail()">Send Email</button>
+  
+    <!-- send -->
+</div>
+
+<!-- Comment section -->
+<div class="container mt-3">
+    {% if request.user.is_authenticated %}
+    <h2>Comments</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="content" class="form-label">Leave a Comment:</label>
+            <textarea class="form-control" id="content" name="content" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+    {% else %}
+    <p>Please login to comment</p>
+    <a href="/login/">login</a>
+    {% endif %}
+
+    <ul class="list-group mt-3">
+        <li>
+
+       <p>Total comment: {{c}}</p>
+        {% for comment in comments %}
+        <div class="comment  bg-secondary p-3    ">
+            <p class="">{{ comment.content |capfirst}}</p>
+            <span class="like-count">{{ comment.likes.count }} likes</span>
+            <button class="btn btn-danger like-btn" data-comment-id="{{ comment.id }}">
+                {% if request.user in comment.likes.all %}
+                    Unlike
+                {% else %}
+                    Like
+                {% endif %}
+            </button>
+        </div>
+    </li>
+    <br>
+        {% empty %}
+            <li class="list-group-item">No comments yet.</li>
+        {% endfor %}
+        
+    </ul>
+
+</div>
+
+
+<script>
+$(document).ready(function () {
+    $(document).on('click', '.like-btn', function () {
+
+        var commentId = $(this).data("comment-id"); // Get the comment ID from the button's data attribute
+        var csrftoken = $("input[name=csrfmiddlewaretoken]").val();
+
+        alert('To change like value : you have to refresh the page')
+        // Send an AJAX POST request to the like_comment URL
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            contentType: 'application/json',
+
+            url: `/toggle_comment_like/${commentId}/`, // Use backticks to interpolate the commentId
+            headers: { "X-CSRFToken": csrftoken },  // Include the CSRF token in the headers
+            success: function (data) {
+
+                // Update the like count on the page
+                var likeButton = $(".like-btn[data-comment-id='" + commentId + "']");
+                var likeCountSpan = likeButton.siblings(".like-count");
+                
+                if (data.liked) {
+                    likeButton.text("Unlike");
+                } else {
+                    likeButton.text("Like");
+                }
+
+                likeCountSpan.text(data.likes_count + " likes");
+            },
+        });
+    });
+});
+
+
+</script>
+<script type="text/javascript">
+
+    function sendmail(){
+        var to=document.getElementById('recipient_email').value
+       
+        var subject = "shared by blog";
+        var body = "INjoy this article";
+        // var url=window.location.href
+        
+        
+        // Encode the attributes for the mailto URL
+        var currentURL = encodeURIComponent(window.location.href);
+        to = encodeURIComponent(to);
+        subject = encodeURIComponent(subject);
+        body = encodeURIComponent(body);
+
+        // Create the mailto URL
+        var mailtoUrl = "mailto:" + to + "?subject=" + subject + "&body=" + body +"%0A%0A" + currentURL;
+
+        // Redirect to the mail client with the pre-filled attributes
+        window.location.href = mailtoUrl;
+        // window.location.href = "mailto:" + recipient_email;
+    }
+</script>
+{% endblock boddy %}
